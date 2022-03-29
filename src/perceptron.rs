@@ -9,9 +9,11 @@ pub struct Perceptron {
 
 impl Perceptron {
 
-	pub fn new(inputs: Vec<f64>, learning_rate: f64) -> Perceptron {
+	pub fn new(dimensions: usize, learning_rate: f64) -> Perceptron {
 		let mut weights = Vec::new();
-		for _ in 0..inputs.len() {
+		let mut inputs = Vec::new();
+		for _ in 0..(dimensions+1) {
+			inputs.push(0.0);
 			weights.push(math::random_f64());
 		}
 		Perceptron {
