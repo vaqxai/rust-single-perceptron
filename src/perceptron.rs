@@ -12,7 +12,7 @@ impl Perceptron {
 	pub fn new(dimensions: usize, learning_rate: f64) -> Perceptron {
 		let mut weights = Vec::new();
 		let mut inputs = Vec::new();
-		for _ in 0..(dimensions+1) {
+		for _ in 0..(dimensions) {
 			inputs.push(0.0);
 			weights.push(math::random_f64());
 		}
@@ -47,6 +47,7 @@ impl Perceptron {
 		for i in 0..self.weights.len() {
 			self.weights[i] += self.learning_rate * error * inputs[i];
 		}
-		self.bias += self.learning_rate * error;
+		self.bias -= self.learning_rate * error;
+		println!("Training step: weights: {:?}, bias: {}", self.weights, self.bias);
 	}
 }

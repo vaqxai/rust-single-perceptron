@@ -1,12 +1,27 @@
 #[cfg(test)]
 mod tests {
 
-	use crate::{perceptron, train};
-	use super::*;
+	use crate::{perceptron, train, test_on_file, train_on_labeled, test_on_labeled};
 
 	#[test]
-	pub fn test_perceptron_on_file(){
+	pub fn train_perceptron_on_file(){
 		train("ex1/train.txt");
+	}
+
+	#[test]
+	pub fn test_perceptron_classification(){
+		let mut p = train("ex1/train.txt");
+		let efficiency = test_on_file(&mut p, "ex1/test.txt");
+
+		println!("Efficiency: {}%", efficiency * 100.0);
+	}
+
+	#[test]
+	pub fn test_perceptron_classification_on_iris(){
+		let mut p = train_on_labeled("ip1/training.txt","Iris-virginica", "Iris-versicolor");
+		let efficiency = test_on_labeled(&mut p, "ip1/test.txt","Iris-virginica", "Iris-versicolor");
+
+		println!("Efficiency: {}%", efficiency * 100.0);
 	}
 
 	#[test]
