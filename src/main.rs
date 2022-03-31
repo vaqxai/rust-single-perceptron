@@ -1,3 +1,5 @@
+use std::{io, env};
+
 use perceptron::Perceptron;
 
 mod fileread;
@@ -5,11 +7,111 @@ mod perceptron;
 mod math;
 mod tests;
 
+fn get_inp() -> String {
+	let mut input = String::new();
+	io::stdin().read_line(&mut input).unwrap();
+	let input = input.trim();
+	input.to_owned()
+}
+
+fn get_inp_vec() -> Vec<f64> {
+	println!("Please enter your test Vector:");
+	let input = get_inp();
+	let input = match input.split(" ").map(|x| x.parse::<f64>())
+		.collect::<Result<Vec<f64>, _>>() {
+		Ok(x) => x,
+		Err(_) => {
+			panic!("Invalid input");
+		}
+	};
+	return input;
+}
+
+fn get_learning_rate_from_user() -> f64 {
+	println!("Please enter training rate (0.0 - 1.0):");
+	let input = match get_inp().parse::<f64>() {
+		Ok(x) if (x >= 0.0 && x <= 1.0) => x,
+		Ok(_) => panic!("Please input a value between 0.0 and 1.0"),
+		Err(_) => panic!("Invalid input")
+	};
+	return input;
+}
+
 fn main() {
+	let args: Vec<String> = env::args().collect();
+	let command;
+	if args.len() > 1 {
+		command = args[1].as_str();
+	} else {
+		println!("Please enter a valid command (iris, ex1, ex1_enterdata, iris_enterdata)");
+		return;
+	}
+
+	match command {
+		"iris" => {
+
+			let learning_rate = get_learning_rate_from_user();
+
+			let mut p = train_on_labeled("ip1/training.txt","Iris-virginica", "Iris-versicolor", learning_rate);
+			let efficiency = test_on_labeled(&mut p, "ip1/test.txt","Iris-virginica", "Iris-versicolor");
+
+			println!("Efficiency: {}%", efficiency * 100.0);
+
+			return;
+
+		},
+		"ex1" => {
+
+			let learning_rate = get_learning_rate_from_user();
+
+			let mut p = train("ex1/train.txt", learning_rate);
+			let efficiency = test_on_file(&mut p, "ex1/test.txt");
+
+			println!("Efficiency: {}%", efficiency * 100.0);
+
+			return;
+
+		},
+		"ex1_enterdata" => {
+
+			let learning_rate = get_learning_rate_from_user();
+
+			let p = train("ex1/train.txt", learning_rate);
+
+			let input = get_inp_vec();
+			let outcome = p.predict(&input);
+
+			println!("The perceptron predicted: {}", outcome);
+
+			return;
+		}
+		"iris_enterdata" => {
+
+			let learning_rate = get_learning_rate_from_user();
+
+			let p = train_on_labeled("ip1/training.txt", "Iris-virginica", "Iris-versicolor", learning_rate);
+
+			let input = get_inp_vec();
+
+			let outcome = p.predict(&input);
+
+			if outcome == 0.0 {
+				println!("The perceptron predicted: Iris-versicolor");
+			} else {
+				println!("The perceptron predicted: Iris-virginica");
+			}
+
+			return;
+
+		},
+		&_ => {
+			println!("Please enter a valid command (iris, ex1, ex1_enterdata, iris_enterdata)");
+		}
+	}
 
 }
 
-fn train_on_labeled(data_path: &str, raised_label: &str, lowered_label: &str) -> Perceptron {
+fn train_on_labeled(data_path: &str, raised_label: &str, lowered_label: &str, learning_rate: f64) -> Perceptron {
 	let mut lines = fileread::read_file(data_path).unwrap();
 
 	let dimensions = match lines.next() {
@@ -17,7 +119,7 @@ fn train_on_labeled(data_path: &str, raised_label: &str, lowered_label: &str) ->
 		None => panic!("Error reading file")
 	};
 
-	let mut p = Perceptron::new(dimensions, 0.1);
+	let mut p = Perceptron::new(dimensions, learning_rate);
 	let lines = fileread::read_file(data_path).unwrap();
 	let mut i = 1;
 	for line in lines {
@@ -47,8 +149,8 @@ fn train_on_labeled(data_path: &str, raised_label: &str, lowered_label: &str) ->
 	p
 }
 
-fn train(data_path: &str) -> Perceptron {
-	train_on_labeled(data_path, "1", "0")
+fn train(data_path: &str, learning_rate: f64) -> Perceptron {
+	train_on_labeled(data_path, "1", "0", learning_rate)
 }
 
 fn test_on_file(p: &mut Perceptron, test_data_path: &str) -> f64 {

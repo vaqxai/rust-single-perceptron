@@ -5,12 +5,12 @@ mod tests {
 
 	#[test]
 	pub fn train_perceptron_on_file(){
-		train("ex1/train.txt");
+		train("ex1/train.txt", 0.1);
 	}
 
 	#[test]
 	pub fn test_perceptron_classification(){
-		let mut p = train("ex1/train.txt");
+		let mut p = train("ex1/train.txt", 0.1);
 		let efficiency = test_on_file(&mut p, "ex1/test.txt");
 
 		println!("Efficiency: {}%", efficiency * 100.0);
@@ -18,7 +18,7 @@ mod tests {
 
 	#[test]
 	pub fn test_perceptron_classification_on_iris(){
-		let mut p = train_on_labeled("ip1/training.txt","Iris-virginica", "Iris-versicolor");
+		let mut p = train_on_labeled("ip1/training.txt","Iris-virginica", "Iris-versicolor", 0.1);
 		let efficiency = test_on_labeled(&mut p, "ip1/test.txt","Iris-virginica", "Iris-versicolor");
 
 		println!("Efficiency: {}%", efficiency * 100.0);
