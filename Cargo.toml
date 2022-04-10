@@ -1,5 +1,5 @@
 [package]
-name = "nai-02-app"
+name = "single-perceptron"
 version = "0.1.0"
 edition = "2021"
 
